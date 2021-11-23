@@ -23,6 +23,8 @@ addMemberPID=$SYNAPSE_OBJECTID
 synapsestorageName=$SYNAPSE_STORAGENAME
 
 
+echo "Deploying Purview"
+
 # Step 2. Purview Security Access
 
 # Step 2.2 Configure your Purview catalog to trust the service principal
@@ -40,7 +42,7 @@ synapsestorageName=$SYNAPSE_STORAGENAME
 # az rest --method get --resource "https://purview.azure.net" --url $restUrl
 
 
-# Configure DataCurator role adding synapse id and service principal
+# Configure DataCurator role menber add synapse id and service principal
 version='2021-07-01'
 getColURL=https://${apv_name}.purview.azure.com/policystore/collections/${apv_name}/metadataPolicy?api-version=${version}
 
@@ -77,6 +79,9 @@ echo "add menber"
 principalMSid=$(echo $attributeRules_curator | jq --arg addMemberPID "$addMemberPID" '.dnfCondition[][] | select(.attributeName == "principal.microsoft.id")  | .attributeValueIncludedIn |= .+[$addMemberPID]')
 # service principal
 principalMSid=$(echo $principalMSid | jq --arg addMemberPID "$sp_objectId" '.attributeValueIncludedIn |= .+[$addMemberPID]')
+
+# (echo $principalMSid | jq '.')
+
 # derivedPvRole復元
 derivedPvRole=$(echo $attributeRules_curator | jq '.dnfCondition[][] | select(.attributeName == "derived.purview.role") ')
 
@@ -84,6 +89,7 @@ derivedPvRole=$(echo $attributeRules_curator | jq '.dnfCondition[][] | select(.a
 attributeRules_curator=$(echo $attributeRules_dnfEmp | jq --argjson principalMSid "$principalMSid" '. | .dnfCondition[] |= .+[$principalMSid]')
 attributeRules_curator=$(echo $attributeRules_curator | jq --argjson derivedPvRole "$derivedPvRole" '. | .dnfCondition[] |= .+[$derivedPvRole]')
 
+(echo $attributeRules_curator | jq '.')
 # create body
 
 body=$(echo $policy | jq   --argjson attributeRules "$attributeRules_curator" '. | .properties.attributeRules |= .+[$attributeRules]')
@@ -98,12 +104,14 @@ putUrl=https://${apv_name}.purview.azure.com/policystore/metadataPolicies/${coll
 
 az rest --method put --resource "https://purview.azure.net" --url $putUrl --body "$body"
 
+echo "Added menber to Purview Data Curator : $principalMSid,$principalMSid"
 
 # Create source adls gen2
 
+echo "Registring Data Source ADLS2"
+
 # https://docs.microsoft.com/en-us/rest/api/purview/scanningdataplane/data-sources/create-or-update#uri-parameters
 
-synapsestorageName="synstlinagedemo0012"
 endpoint=https://${synapsestorageName}.dfs.core.windows.net/
 sourcebody=$(cat ./Deployment/template/purview/source/source_adls2.json | jq --arg endpoint "$endpoint" '.properties.endpoint = $endpoint')
 sourcebody=$(echo $sourcebody | jq --arg refName "$apv_name" '.properties.collection.referenceName = $refName')
@@ -112,15 +120,22 @@ sourcePutUrl=https://${apv_name}.scan.purview.azure.com/datasources/${synapsesto
 az rest --method put --resource "https://purview.azure.net" --url $sourcePutUrl --body "$sourcebody"
 
 
+echo "Finish register Data Source : ${synapsestorageName} "
+
+
 # Create scan adls gen2
+echo "Creating Scan ADLS2"
 
 scanPutUrl=https://${apv_name}.purview.azure.com/scan/datasources/${synapsestorageName}/scans/Scan-adls2?api-version=2018-12-01-preview
 scanbody=$(cat ./Deployment/template/purview/scan/scan_adls2.json | jq --arg refName "$apv_name" '.properties.collection.referenceName = $refName')
 az rest --method put --resource "https://purview.azure.net" --url $scanPutUrl --body "$scanbody"
 
-# run
-runScanPutUrl=https://${apv_name}.purview.azure.com/scan/datasources/${synapsestorageName}/scans/Scan-adls2/run?api-version=2018-12-01-preview
+echo "Created Scan ADLS2"
 
+# run
+echo "Run Scan ADLS2"
+
+runScanPutUrl=https://${apv_name}.purview.azure.com/scan/datasources/${synapsestorageName}/scans/Scan-adls2/run?api-version=2018-12-01-preview
 runbody=$(printf '{"scanLevel":"Full"}')
 
 az rest --method post --resource "https://purview.azure.net" --url $runScanPutUrl --body "$runbody"

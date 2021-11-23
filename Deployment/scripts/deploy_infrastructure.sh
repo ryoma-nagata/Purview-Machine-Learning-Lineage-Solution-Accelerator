@@ -48,16 +48,16 @@ arm_output=$(az deployment group create \
     --parameters project=$PROJECT env=$ENV_NAME deployment_id=$DEPLOYMENT_ID \
     --output json)
 
+echo "Finish deploying resources into $resource_group_name"
 
 # ########################
 
 # upload data
 
-
-echo "Uploading seed data to data"
-
 synapsestorageName=$(echo "$arm_output" | jq -r '.properties.outputs.synapsestorageName.value')
 synContainer=$(echo "$arm_output" | jq -r '.properties.outputs.synContainer.value')
+
+echo "Uploading data to ${synapsestorageName}"
 
 az storage blob upload-batch  \
 --auth-mode login \
@@ -65,12 +65,14 @@ az storage blob upload-batch  \
 --account-name "$synapsestorageName" \
 -s ./Data
 
+echo "Finish uploading data"
 
 #####################
-# Create Create a Service Principal for Purview Rest API access
+# Create a Service Principal for Purview Rest API access
+
+echo "Creating Service principal for Purview Rest API access"
 
 sp_stor_name="${PROJECT}-apv-${ENV_NAME}-${DEPLOYMENT_ID}-sp"
-
 rg_id=$(az group show \
     --name "$resource_group_name" \
     --output json |
@@ -82,9 +84,12 @@ sp_stor_out=$(az ad sp create-for-rbac \
     --name "$sp_stor_name" \
     --output json)
 
+echo "Created Service principal : ${sp_stor_name}"
+
 sp_appId=$(echo $sp_stor_out | jq -r .appId)
+sleep 30
 sp_objectId=$(az ad sp show --id ${sp_appId} | jq -r .objectId)
-# sp_objectId="5825e9d0-99d6-4b98-ab6e-a2c32a5cab8e"
+
 apv_name=$(echo "$arm_output" | jq -r '.properties.outputs.apv_name_output.value')
 syn_objectId=$(echo "$arm_output" | jq -r '.properties.outputs.synapsePId.value')
 synapsestorageName=$(echo "$arm_output" | jq -r '.properties.outputs.synapsestorageName.value')
@@ -109,3 +114,6 @@ RESOURCE_GROUP_NAME=$resource_group_name \
 SYN_WORKSPACENAME=$synWorkspaceName \
 SYN_SPARKNAME=$synSparkName \
     bash -c "./Deployment/scripts/deploy_synapse_artifacts.sh"
+
+
+echo "Completed deploying Azure resources $resource_group_name "

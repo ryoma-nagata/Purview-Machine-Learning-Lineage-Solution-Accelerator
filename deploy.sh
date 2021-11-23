@@ -3,7 +3,7 @@
 set -o errexit
 set -o pipefail
 set -o nounset
-set -o xtrace # For debugging
+# set -o xtrace # For debugging
 
 . ./Deployment/scripts/init.sh
 project=linage # CONSTANT - this is prefix for this sample
