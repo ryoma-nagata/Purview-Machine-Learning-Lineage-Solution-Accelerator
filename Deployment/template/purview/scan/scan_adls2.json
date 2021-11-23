@@ -1,0 +1,12 @@
+{
+    "name": "Scan-adls2",
+    "kind": "AdlsGen2Msi",
+    "properties": {
+        "collection": {
+            "type": "CollectionReference",
+            "referenceName": ""
+        },
+        "scanRulesetType": "System",
+        "scanRulesetName": "AdlsGen2"
+    }
+}

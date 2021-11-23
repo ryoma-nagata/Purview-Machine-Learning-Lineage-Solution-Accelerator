@@ -1,0 +1,12 @@
+###
+# OPTIONAL. 環境変数設定.
+# Uncomment to set values.
+
+# Azure location to deploy resources. Default: japaneast
+# AZURE_LOCATION=
+
+# Azure subscription id to use to deploy resources. Default: default azure subscription.
+# AZURE_SUBSCRIPTION_ID=
+
+# String appended to all resource names to ensure uniqueness of azure resource names. Default: random five character string example:"test01
+# DEPLOYMENT_ID=

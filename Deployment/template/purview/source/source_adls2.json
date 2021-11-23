@@ -1,0 +1,10 @@
+{
+    "kind": "AdlsGen2",
+    "properties": {
+      "endpoint": "https://.dfs.core.windows.net/",
+      "collection": {
+        "referenceName": "",
+        "type": "CollectionReference"
+      }
+    }
+}
