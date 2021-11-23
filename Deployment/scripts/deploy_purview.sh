@@ -22,6 +22,7 @@ sp_objectId=$SP_OBJECTID
 addMemberPID=$SYNAPSE_OBJECTID
 synapsestorageName=$SYNAPSE_STORAGENAME
 
+
 # Step 2. Purview Security Access
 
 # Step 2.2 Configure your Purview catalog to trust the service principal
@@ -39,8 +40,8 @@ synapsestorageName=$SYNAPSE_STORAGENAME
 # az rest --method get --resource "https://purview.azure.net" --url $restUrl
 
 
-# Configure DataCurator role adding synapse id
-
+# Configure DataCurator role adding synapse id and service principal
+version='2021-07-01'
 getColURL=https://${apv_name}.purview.azure.com/policystore/collections/${apv_name}/metadataPolicy?api-version=${version}
 
 resp=$(az rest --method get --resource "https://purview.azure.net" --url $getColURL)
@@ -49,6 +50,7 @@ resp=$(az rest --method get --resource "https://purview.azure.net" --url $getCol
 collectionId=$(echo $resp | jq -r '.id')
 
 # policyテンプレート
+echo "create policy"
 policy=$(echo $resp | jq '. | .properties.attributeRules |= .-.')
 # curatorのロール部分
 rulename_curator=purviewmetadatarole_builtin_data-curator:${apv_name}
@@ -65,23 +67,22 @@ attributeRules_permission=$(echo $resp | jq --arg ruleName "$rulename_permission
 
 
 # attributeRules_curator初期化
-attributeRules_dnfEmp=$(echo $resp | jq --arg ruleName "$rulename" '.properties.attributeRules[] | select(.name == $ruleName) | .dnfCondition[] |= .-.')
+attributeRules_dnfEmp=$(echo $resp | jq --arg ruleName "$rulename_curator" '.properties.attributeRules[] | select(.name == $ruleName) | .dnfCondition[] |= .-.')
 
+
+
+echo "add menber"
 # member 追加
 # synapse
 principalMSid=$(echo $attributeRules_curator | jq --arg addMemberPID "$addMemberPID" '.dnfCondition[][] | select(.attributeName == "principal.microsoft.id")  | .attributeValueIncludedIn |= .+[$addMemberPID]')
 # service principal
-principalMSid=$(echo $principalMSid | jq --arg addMemberPID "$sp_objectId" '.dnfCondition[][] | select(.attributeName == "principal.microsoft.id")  | .attributeValueIncludedIn |= .+[$addMemberPID]')
-
-
+principalMSid=$(echo $principalMSid | jq --arg addMemberPID "$sp_objectId" '.attributeValueIncludedIn |= .+[$addMemberPID]')
 # derivedPvRole復元
 derivedPvRole=$(echo $attributeRules_curator | jq '.dnfCondition[][] | select(.attributeName == "derived.purview.role") ')
+
 # 追加
 attributeRules_curator=$(echo $attributeRules_dnfEmp | jq --argjson principalMSid "$principalMSid" '. | .dnfCondition[] |= .+[$principalMSid]')
 attributeRules_curator=$(echo $attributeRules_curator | jq --argjson derivedPvRole "$derivedPvRole" '. | .dnfCondition[] |= .+[$derivedPvRole]')
-
-# (echo $attributeRules_curator | jq '.')
-
 
 # create body
 
@@ -104,7 +105,7 @@ az rest --method put --resource "https://purview.azure.net" --url $putUrl --body
 
 synapsestorageName="synstlinagedemo0012"
 endpoint=https://${synapsestorageName}.dfs.core.windows.net/
-sourcebody=$(cat ./template/purview/source/source_adls2.json | jq --arg endpoint "$endpoint" '.properties.endpoint = $endpoint')
+sourcebody=$(cat ./Deployment/template/purview/source/source_adls2.json | jq --arg endpoint "$endpoint" '.properties.endpoint = $endpoint')
 sourcebody=$(echo $sourcebody | jq --arg refName "$apv_name" '.properties.collection.referenceName = $refName')
 sourcePutUrl=https://${apv_name}.scan.purview.azure.com/datasources/${synapsestorageName}?api-version=2018-12-01-preview
 
@@ -112,11 +113,9 @@ az rest --method put --resource "https://purview.azure.net" --url $sourcePutUrl 
 
 
 # Create scan adls gen2
-https://purview-linagedemo0012.purview.azure.com/scan/datasources/synstlinagedemo0012/scans/Scan-vVV?api-version=2018-12-01-preview
-
 
 scanPutUrl=https://${apv_name}.purview.azure.com/scan/datasources/${synapsestorageName}/scans/Scan-adls2?api-version=2018-12-01-preview
-scanbody=$(cat ./template/purview/scan/scan_adls2.json | jq --arg refName "$apv_name" '.properties.collection.referenceName = $refName')
+scanbody=$(cat ./Deployment/template/purview/scan/scan_adls2.json | jq --arg refName "$apv_name" '.properties.collection.referenceName = $refName')
 az rest --method put --resource "https://purview.azure.net" --url $scanPutUrl --body "$scanbody"
 
 # run
@@ -126,3 +125,4 @@ runbody=$(printf '{"scanLevel":"Full"}')
 
 az rest --method post --resource "https://purview.azure.net" --url $runScanPutUrl --body "$runbody"
 
+echo "Purview Deployment Complete"

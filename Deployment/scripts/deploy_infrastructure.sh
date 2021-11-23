@@ -3,7 +3,7 @@
 set -o errexit
 set -o pipefail
 set -o nounset
-set -o xtrace # For debugging
+# set -o xtrace # For debugging
 
 ###################
 # REQUIRED ENV VARIABLES:
@@ -37,7 +37,7 @@ echo "Validating deployment"
 arm_output=$(az deployment group validate \
     --resource-group $resource_group_name \
     --template-file ./Deployment/infrastructure/bicep/main.bicep \
-    --parameters project=$PROJECT env=$ENV_NAME deployment_id=$DEPLOYMENT_ID  \
+    --parameters project=$PROJECT env=$ENV_NAME deployment_id=$DEPLOYMENT_ID \
     --output json)
 
 # Deploy arm template
@@ -45,7 +45,7 @@ echo "Deploying resources into $resource_group_name"
 arm_output=$(az deployment group create \
     --resource-group $resource_group_name \
     --template-file ./Deployment/infrastructure/bicep/main.bicep \
-    --parameters project=$PROJECT env=$ENV_NAME deployment_id=$DEPLOYMENT_ID  \
+    --parameters project=$PROJECT env=$ENV_NAME deployment_id=$DEPLOYMENT_ID \
     --output json)
 
 
@@ -63,12 +63,13 @@ az storage blob upload-batch  \
 --auth-mode login \
 -d "$synContainer" \
 --account-name "$synapsestorageName" \
--s ../Data 
+-s ./Data
 
+
+#####################
 # Create Create a Service Principal for Purview Rest API access
 
-
-# sp_stor_name="${PROJECT}-apv-${ENV_NAME}-${DEPLOYMENT_ID}-sp"
+sp_stor_name="${PROJECT}-apv-${ENV_NAME}-${DEPLOYMENT_ID}-sp"
 
 rg_id=$(az group show \
     --name "$resource_group_name" \
@@ -81,12 +82,13 @@ sp_stor_out=$(az ad sp create-for-rbac \
     --name "$sp_stor_name" \
     --output json)
 
-# sp_appId=$(echo $sp_stor_out | jq -r .appId)
-# sp_objectId=$(az ad sp show --id ${sp_appId} | jq -r .objectId)
+sp_appId=$(echo $sp_stor_out | jq -r .appId)
+sp_objectId=$(az ad sp show --id ${sp_appId} | jq -r .objectId)
 # sp_objectId="5825e9d0-99d6-4b98-ab6e-a2c32a5cab8e"
 apv_name=$(echo "$arm_output" | jq -r '.properties.outputs.apv_name_output.value')
 syn_objectId=$(echo "$arm_output" | jq -r '.properties.outputs.synapsePId.value')
 synapsestorageName=$(echo "$arm_output" | jq -r '.properties.outputs.synapsestorageName.value')
+
 
 # Deploy Purview
 RESOURCE_GROUP_NAME=$resource_group_name \
@@ -95,6 +97,8 @@ SP_OBJECTID=$sp_objectId \
 SYNAPSE_OBJECTID=$syn_objectId \
 SYNAPSE_STORAGENAME=$synapsestorageName \
     bash -c "./Deployment/scripts/deploy_purview.sh"
+
+#####################
 
 # Deploy Synapse
 
