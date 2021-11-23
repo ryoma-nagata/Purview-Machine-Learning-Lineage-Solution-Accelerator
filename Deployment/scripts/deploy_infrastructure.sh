@@ -116,4 +116,4 @@ SYN_SPARKNAME=$synSparkName \
     bash -c "./Deployment/scripts/deploy_synapse_artifacts.sh"
 
 
-echo "Completed deploying Azure resources $resource_group_name "
+echo "Completed deploying Azure resources $resource_group_name"
