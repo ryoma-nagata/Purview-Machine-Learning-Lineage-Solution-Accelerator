@@ -31,7 +31,7 @@ Azure Purviewは、さまざまなソースのデータを管理・統制する�
 必須ではありませんが、Azure Purview、Azure Synapse Analytics、Machine Learningについて事前に理解していると便利です。
 
 その他のトレーニングやサポートについては、こちらをご覧ください。
-1. [Azure Purview](https://azure.microsoft.com/ja-jp/services/purview/)をご覧ください。
+1. [Azure Purview](https://azure.microsoft.com/ja-jp/services/purview/)
 2. [Azure Synapse Analytics](https://azure.microsoft.com/ja-jp/services/synapse-analytics/) 
 3. [Azure Machine Learning](https://azure.microsoft.com/ja-jp/services/machine-learning/) 
 
@@ -74,7 +74,7 @@ Azureリソースとして以下がデプロイされます。
 
 #### Step 1.3 Remote-Containerの起動およびdeply.shの実行
 
-1. 「Ctrl + Shigt + P」より、「Open Folder in Conteiner」を選択して、コンテナを起動します。
+1. 「Ctrl + Shigt + P」より、「Open Folder in Conteiner」を選択して、コンテナを起動します。（[参考](https://github.com/Azure-Samples/modern-data-warehouse-dataops/blob/main/e2e_samples/parking_sensors/docs/devcontainer.md)）
 2. ターミナルを起動して、以下を実行します。約10分で完了します。
 
 ```BASH
@@ -82,7 +82,7 @@ Azureリソースとして以下がデプロイされます。
 bash deploy.sh
 
 ```
-3. 実行後、後ほど使う情報がフォルダ内に.jsonとして出力されます。
+3. 実行後、後ほど使う情報がフォルダ内にvariable.jsonとして出力されます。
 
 
 ### Step 2. Purviewスキャンの実施
