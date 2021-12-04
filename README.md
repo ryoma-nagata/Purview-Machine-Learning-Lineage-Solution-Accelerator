@@ -46,6 +46,8 @@ Azure Purviewは、さまざまなソースのデータを管理・統制する�
 ### Step 1. Azureリソースのセットアップ
 
 Azureリソースとして以下がデプロイされます。
+Azure Deployボタンからもワンクリックデプロイ可能です。
+
 
 - Azure Synapse Analytics
 - Azure Data Lake Storage Gen2
