@@ -95,13 +95,15 @@ bash deploy.sh
 2. このソリューションアクセラレータに使用する `Azure Active Directory` と `Account name` の名前を選択してください。
 3. 「Data Map」 > 「Sources」> 「View Detail」を選択します。
 
+![](.image/2021-12-04-19-05-52.png)
 
+1. 「Scans」 > 「Scan-adls2」 を選択します。
 
-4. 「Scans」 > 「Scan-adls2」 を選択します。
-
-
+![](.image/2021-12-04-19-03-50.png)
 
 5. 「Run Scan Now」 > 「Full Scan」を選択して、スキャンを実行します。8分ほどでスキャンが完了し、カタログ検索が可能になります。
+
+![](.image/2021-12-04-19-04-55.png)
 
 ### Step 3. Synapse SparkによるML処理の実行
 
@@ -112,7 +114,7 @@ Notebook内の変数に指定する情報は、Step 1.3で出力されたファ�
 
 1. [Synapse Studio](https://web.azuresynapse.net/)にログインします。
 2. このソリューションアクセラレータに使用する `Azure Active Directory` と `サブスクリプション` と `ワークスペース名` の名前を選択してください
-3. Go to `開発`ハブに移動します。各ノートブックを開き、上部を`アタッチ先 > Spark2x4`に変更します。 
+3. `開発`ハブに移動します。各ノートブックを開き、上部を`アタッチ先 > Spark1`に変更します。 
 
 4. `01_Authenticate_to_Purview_AML.ipynb`で、2セル目の`<TENANT_ID>, <CLIENT_ID>, <CLIENT_SECRET>,<PURVIEW_NAME>`を更新します。
 

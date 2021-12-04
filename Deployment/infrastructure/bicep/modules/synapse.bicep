@@ -107,10 +107,10 @@ resource synapseWorkspace_allowAll 'Microsoft.Synapse/workspaces/firewallRules@2
 
 resource synapseWorkspace_spark1 'Microsoft.Synapse/workspaces/bigDataPools@2021-06-01' = {
   parent: synapseWorkspace
-  name: 'spark2x4'
+  name: 'spark1'
   location: location
   properties: {
-    sparkVersion: '2.4'
+    sparkVersion: '3.1'
     nodeCount: 3
     nodeSize: 'Medium'
     nodeSizeFamily: 'MemoryOptimized'
@@ -156,4 +156,4 @@ output synapsePId string = synapseWorkspace.identity.principalId
 output synDatalakeName string = storageName_var
 output synContainer string = storageContainer
 output synWorkspaceName string = synapseWorkspaceName_var
-output synSparkName string = 'spark2x4'
+output synSparkName string = 'spark1'
