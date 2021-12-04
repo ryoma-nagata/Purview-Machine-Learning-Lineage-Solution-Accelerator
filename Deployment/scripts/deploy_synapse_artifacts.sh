@@ -18,7 +18,6 @@ resource_group_name=$RESOURCE_GROUP_NAME
 syn_ws_name=$SYN_WORKSPACENAME
 syn_spark_name=$SYN_SPARKNAME
 
-
 ImportNotebook () {
     declare name=$1
     echo "Import Synapse Notebook: $name"
@@ -47,8 +46,8 @@ ImportNotebook "04_Create_CreditRisk_Experiment"
 
 # library
 
-echo 'Start importing library'
-ImportLibrary "requirements"
+# echo 'Start importing library'
+# ImportLibrary "requirements"
 
 echo "Completed deploying Synapse artifacts."
 

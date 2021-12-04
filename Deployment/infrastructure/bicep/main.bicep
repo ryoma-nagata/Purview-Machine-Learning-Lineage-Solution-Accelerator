@@ -8,6 +8,9 @@ param env string ='demo'
 param deployment_id string 
 var uniqueName = '${project}-${deployment_id}-${env}'
 
+// 並列でデプロイするためここで生成
+var purviewId = '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Purview/accounts/apv-${uniqueName}'
+
 module purview 'modules/purview.bicep' = {
   name: 'Purview_Deployment'
   params: {
@@ -19,11 +22,8 @@ module synapse 'modules/synapse.bicep' ={
   name: 'Synapse_Deployment'
   params:{
     paramName:uniqueName
-    purviewId:purview.outputs.purviewResourceId
+    purviewId:purviewId
   }
-  dependsOn:[
-    purview
-  ]
 }
 module azureml 'modules/azureml.bicep' ={
   name:'Azure_ML_Deployment'
@@ -53,3 +53,5 @@ output synapsestorageName string = synapse.outputs.synapsestorageName
 output synContainer string = synapse.outputs.synContainer
 output synWorkspaceName string = synapse.outputs.synWorkspaceName
 output synSparkName string = synapse.outputs.synSparkName
+
+output azuremlName string = azureml.outputs.azuremlName

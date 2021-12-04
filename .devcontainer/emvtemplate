@@ -1,12 +1,12 @@
 ###
 # OPTIONAL. 環境変数設定.
-# Uncomment to set values.
+# 指定する場合コメントアウトを外します。指定しない場合、既定値が設定されます。
 
-# Azure location to deploy resources. Default: japaneast
+# Azureリージョン 既定値: japaneast
 # AZURE_LOCATION=
 
-# Azure subscription id to use to deploy resources. Default: default azure subscription.
+# Azure サブスクリプションID. 既定値: アカウントの既定のサブスクリプション
 # AZURE_SUBSCRIPTION_ID=
 
-# String appended to all resource names to ensure uniqueness of azure resource names. Default: random five character string example:"test01
+# リソース名をユニークに保つ文字列. 既定値: ランダムな数字がふられます
 # DEPLOYMENT_ID=

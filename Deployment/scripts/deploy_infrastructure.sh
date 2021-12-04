@@ -87,15 +87,16 @@ sp_stor_out=$(az ad sp create-for-rbac \
 echo "Created Service principal : ${sp_stor_name}"
 
 sp_appId=$(echo $sp_stor_out | jq -r .appId)
+sp_tenantId=$(echo $sp_stor_out | jq -r .tenant)
+sp_secret=$(echo $sp_stor_out | jq -r .password)
 sleep 30
 sp_objectId=$(az ad sp show --id ${sp_appId} | jq -r .objectId)
 
+# Deploy Purview
 apv_name=$(echo "$arm_output" | jq -r '.properties.outputs.apv_name_output.value')
 syn_objectId=$(echo "$arm_output" | jq -r '.properties.outputs.synapsePId.value')
 synapsestorageName=$(echo "$arm_output" | jq -r '.properties.outputs.synapsestorageName.value')
 
-
-# Deploy Purview
 RESOURCE_GROUP_NAME=$resource_group_name \
 APV_NAME=$apv_name \
 SP_OBJECTID=$sp_objectId \
@@ -106,7 +107,6 @@ SYNAPSE_STORAGENAME=$synapsestorageName \
 #####################
 
 # Deploy Synapse
-
 synWorkspaceName=$(echo "$arm_output" | jq -r '.properties.outputs.synWorkspaceName.value')
 synSparkName=$(echo "$arm_output" | jq -r '.properties.outputs.synSparkName.value')
 
@@ -116,4 +116,26 @@ SYN_SPARKNAME=$synSparkName \
     bash -c "./Deployment/scripts/deploy_synapse_artifacts.sh"
 
 
-echo "Completed deploying Azure resources $resource_group_name"
+# variables file
+
+azuremlName=$(echo "$arm_output" | jq -r '.properties.outputs.azuremlName.value')
+json=$(printf '
+{
+    "01_Authenticate_to_Purview_AML":{
+    "TENANT_ID": "%s",
+    "CLIENT_ID": "%s",
+    "CLIENT_SECRET":"%s",
+    "PURVIEW_NAME": "%s",
+    "SUBSCRIPTION_ID": "%s",
+    "RESOURCE_GROUP":"%s",
+    "WORKSPACE_NAME": "%s",
+    "WORKSPACE_REGION": "%s"},
+    "04_Create_CreditRisk_Experiment":{
+        "Synapse_Storage_Account_Name":"%s"
+    }   
+}' "${sp_tenantId}" "${sp_appId}" ${sp_secret} ${apv_name} ${AZURE_SUBSCRIPTION_ID} ${resource_group_name} ${azuremlName} ${AZURE_LOCATION} ${synapsestorageName})
+
+echo "$json" | jq '.' > variable.json
+
+# finish
+echo "Completed deploying Azure resources $resource_group_name" 

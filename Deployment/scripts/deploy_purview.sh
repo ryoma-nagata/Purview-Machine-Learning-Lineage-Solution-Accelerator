@@ -133,11 +133,11 @@ az rest --method put --resource "https://purview.azure.net" --url $scanPutUrl --
 echo "Created Scan ADLS2"
 
 # run
-echo "Run Scan ADLS2"
+# echo "Run Scan ADLS2"
 
-runScanPutUrl=https://${apv_name}.purview.azure.com/scan/datasources/${synapsestorageName}/scans/Scan-adls2/run?api-version=2018-12-01-preview
-runbody=$(printf '{"scanLevel":"Full"}')
+# runScanPutUrl=https://${apv_name}.purview.azure.com/scan/datasources/${synapsestorageName}/scans/Scan-adls2/run?api-version=2018-12-01-preview
+# runbody=$(printf '{"scanLevel":"Full"}')
 
-az rest --method post --resource "https://purview.azure.net" --url $runScanPutUrl --body "$runbody"
+# az rest --method post --resource "https://purview.azure.net" --url $runScanPutUrl --body "$runbody"
 
 echo "Purview Deployment Complete"

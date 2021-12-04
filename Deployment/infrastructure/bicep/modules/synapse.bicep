@@ -9,7 +9,6 @@ param paramName string
 param AllowAll string = 'true'
 param purviewId string
 
-
 var location = resourceGroup().location
 
 var synapseWorkspaceName_var = 'syn-ws-${paramName}'
@@ -125,7 +124,7 @@ resource synapseWorkspace_spark1 'Microsoft.Synapse/workspaces/bigDataPools@2021
       delayInMinutes: 15
     }
     isComputeIsolationEnabled: false
-    sessionLevelPackagesEnabled: false
+    sessionLevelPackagesEnabled: true
     cacheSize: 0
     dynamicExecutorAllocation: {
       enabled: true

@@ -1,0 +1,6 @@
+name: pyatlas
+channels:
+- defaults
+dependencies:
+- pip:
+  - pyapacheatlas

@@ -14,7 +14,8 @@
 	"extensions": [
 		"ms-python.python",
 		"ms-python.vscode-pylance",
-		"ms-azuretools.vscode-bicep"
+		"ms-azuretools.vscode-bicep",
+		"ms-toolsai.vscode-ai-remote"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
