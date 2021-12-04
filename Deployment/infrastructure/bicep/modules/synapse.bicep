@@ -110,7 +110,7 @@ resource synapseWorkspace_spark1 'Microsoft.Synapse/workspaces/bigDataPools@2021
   name: 'spark1'
   location: location
   properties: {
-    sparkVersion: '3.1'
+    sparkVersion: '2.4'
     nodeCount: 3
     nodeSize: 'Medium'
     nodeSizeFamily: 'MemoryOptimized'
