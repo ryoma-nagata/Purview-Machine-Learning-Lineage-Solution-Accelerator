@@ -15,6 +15,7 @@
 		"ms-python.python",
 		"ms-python.vscode-pylance",
 		"ms-azuretools.vscode-bicep",
+		"ms-toolsai.vscode-ai",
 		"ms-toolsai.vscode-ai-remote"
 	],
 

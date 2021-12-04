@@ -2,155 +2,160 @@
 
 ## About this Repository 
 
-Azure Purview is a unified data governance service that helps you manage and govern data across different sources.
+Azure Purviewは、さまざまなソースのデータを管理・統制するための統合データガバナンスサービスです。
 
-Machine Learning project life cycle involves many steps to transform raw data into insights. This process usually requires individuals with different roles/skillsets across multiple teams to collaborate effectively. Azure Purview helps simplify this complex process by providing an end-to-end lineage of ML entities and processes to enable better collaboration, auditing and debugging capabilities.
+機械学習プロジェクトのライフサイクルには、生データを洞察力に変えるための多くのステップが含まれます。このプロセスでは通常、複数のチームで異なる役割やスキルを持つ個人が効果的にコラボレーションする必要があります。Azure Purviewは、MLエンティティとプロセスのエンドツーエンドのリネージを提供することで、この複雑なプロセスを簡素化し、コラボレーション、監査、デバッグの機能を向上させます。
 
-This solution accelerator helps developers with the resources needed to build an end-to-end lineage in Purview for Machine Learning scenarios.
+このソリューションアクセラレータは、機械学習のシナリオに合わせてPurviewでエンドツーエンドのリネージを構築するために必要なリソースを開発者に提供します。
 
-## Sample Credit Risk Prediction ML Process Flow
+### 補足
+
+#### 日本語版について
+
+このリポジトリは、2021年11月時点の[Purview-Machine-Learning-Lineage-Solution-Accelerator](https://github.com/microsoft/Purview-Machine-Learning-Lineage-Solution-Accelerator/blob/main/README.md)の日本語訳し、環境構築を簡易化したものです。
+
+
+##  クレジットリスク予測ML処理フロー
 ![Purview Machine Learning Lineage Introduction](./Deployment/img/PurviewMLLineageIntroduction.PNG)
 
-## Purview ML Process Lineage
+## PurviewによるML処理のリネージ
 ![ML Lineage](./Deployment/img/MLLineageScreenshot.PNG)
 
-## Prerequisites
-To use this solution accelerator, you will need access to an [Azure subscription](https://azure.microsoft.com/free/). While not required, a prior understanding of Azure Purview, Azure Synapse Analytics and Machine Learning will be helpful.
+## 前提条件
+このソリューションアクセラレータを使用するには、以下が必要です。
+- [Azureサブスクリプション](https://azure.microsoft.com/free/)へのアクセス
+- docker
+- VSCode Remote Container環境
+- - [WSL 開発環境を設定するためのベスト プラクティス](https://docs.microsoft.com/ja-jp/windows/wsl/setup/environment) を参照して環境をセットアップしてください。「Docker を使用してリモート開発コンテナーを設定する」まで実行すればOKです。
 
-For additional training and support, please see:
-1. [Azure Purview](https://azure.microsoft.com/en-us/services/purview/) 
-2. [Azure Synapse Analytics](https://azure.microsoft.com/en-us/services/synapse-analytics/) 
-3. [Azure Machine Learning](https://azure.microsoft.com/en-us/services/machine-learning/) 
+必須ではありませんが、Azure Purview、Azure Synapse Analytics、Machine Learningについて事前に理解していると便利です。
 
-## Getting Started
-Start by deploying the required resources to Azure. The button below will deploy Azure Purview, Azure Synapse Analytics, Azure Machine Learning and its related resources:
+その他のトレーニングやサポートについては、こちらをご覧ください。
+1. [Azure Purview](https://azure.microsoft.com/ja-jp/services/purview/)をご覧ください。
+2. [Azure Synapse Analytics](https://azure.microsoft.com/ja-jp/services/synapse-analytics/) 
+3. [Azure Machine Learning](https://azure.microsoft.com/ja-jp/services/machine-learning/) 
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmicrosoft%2FPurview-Machine-Learning-Lineage-Solution-Accelerator%2Fmain%2FDeployment%2Fdeploy.json)
+## 手順
+手順の概要は以下の通りです。
+- Azureリソースのセットアップ
+- Purviewスキャンの実施
+- Synapse SparkによるML処理の実行
 
-If you prefer to setup manually, you need to deploy Azure Purview, Azure Synapse Analytics, Azure Machine Learning.
+注：Azure のコストを最小限に抑えるために、Purview インスタンスを積極的に使用する予定がない場合は、この演習の最後に削除することを検討してください。
 
-Note: To minimize Azure costs, consider deleting the Purview instance at the end of this exercise if you do not plan to use this instance actively. 
+### Step 1. Azureリソースのセットアップ
 
-### Step 1. Download Files
-Clone or download this repository and navigate to the project's root directory.
+Azureリソースとして以下がデプロイされます。
 
-### Step 2. Purview Security Access
+- Azure Synapse Analytics
+- Azure Data Lake Storage Gen2
+- Azure Purview
+- Azure Machine Learning
+- Azure Key Vault (Azure ML用)
+- Azure Blob Storage (Azure ML用)
+- Application Insight (Azure ML用)
 
-#### Step 2.1 Create a Service Principal for Purview Rest API access
-[Create a service principal](https://docs.microsoft.com/en-us/azure/purview/tutorial-using-rest-apis#create-a-service-principal-application)
+デプロイおよび設定はスクリプトで自動化されます。
+デプロイ後、追加の設定として以下が実行されます。
 
-#### Step 2.2 Configure your Purview catalog to trust the service principal
-[Configure your Purview catalog to trust the service principal](https://docs.microsoft.com/en-us/azure/purview/tutorial-using-rest-apis#configure-your-catalog-to-trust-the-service-principal-application)
+- データのアップロード
+- Purviewコレクションアクセス制御の設定
+- Purviewデータソース、スキャンの登録
+- Synapse Notebookのアップロード
+- Synapse Spark Poolパッケージのアップロード
 
-### Step 3. Azure Machine Learning Security Access
+#### Step 1.1 ファイルのダウンロード
 
-#### Step 3.1 Create a Service Principal for AML access
-[Create a service principal](https://docs.microsoft.com/en-us/azure/purview/tutorial-using-rest-apis#create-a-service-principal-application)
+このリポジトリをクローンまたはダウンロードして、VSCodeでフォルダとして開きます。
 
-#### Step 3.2 Configure your Azure Machine Learning to trust the service principal
-1. From the [Azure portal](https://portal.azure.com/), select your AML workspace
-2. select Access Control (IAM)
-3. Select Add, Add Role Assignment to open the Add role assignment page
+#### Step 1.2 変数情報の設定
 
-	3.1 For the `Role` type in `Contributor`
-	
-	3.2 For `Assign access to` leave the default, `User, group, or service principal`
-	
-	3.2 For `Select` enter the name of the previosly created service principal in step 3.1 and then click on their name in the results pane
-	
-	3.3 Click on Save
-You've now configured the service principal as a contributor on Azure Machine Learning resource.
+「.devcontainer」フォルダ内の 「envtemplate」を「devcontainer.env」に名前変更して、内容を更新します。
 
-### Step 4. Synapse Security Access
+#### Step 1.3 Remote-Containerの起動およびdeply.shの実行
 
-#### Step 4.1 Add your IP address to Synapse firewall
-Before you can upload assests to the Synapse Workspace you will need to add your IP address:
-1. Go to the Synapse resouce you created in the previous step
-2. Navigate to `Firewalls` under `Security` on the left hand side of the page
-3. At the top of the screen click `+ Add client IP`
-	![Update Firewalls](./Deployment/img/deploy-firewall.png)  
-4. Your IP address should now be visable in the IP list
+1. 「Ctrl + Shigt + P」より、「Open Folder in Conteiner」を選択して、コンテナを起動します。
+2. ターミナルを起動して、以下を実行します。約10分で完了します。
 
-#### Step 4.2: Update storage account permisions 
-In order to perform the necessary actions in Synapse workspace, you will need to grant more access.
-1. Go to the Azure Data Lake Storage Account created above
-2. Go to the `Access Control (IAM) > + Add > Add role assignment` 
-3. Now click the Role dropdown and select `Storage Blob Data Contributor`
-	- Search for your username and add
-4. Click `Save` at the bottom
+```BASH
 
-[Learn more](https://docs.microsoft.com/azure/synapse-analytics/security/how-to-set-up-access-control)
+bash deploy.sh
 
-### Step 5. Upload CreditRisk Sample Dataset
-1. Launch the Synapse workspace [Synapse Workspace](https://ms.web.azuresynapse.net/)
-2. Select the `subscription` and `workspace` name you are using for this solution accelerator
-3. In Synapse Studio, navigate to the `Data` Hub
-4. Select `Linked`
-5. Under the category `Azure Data Lake Storage Gen2` you'll see an item with a name like `xxxxx(xxxxx- Primary)`
-6. Select the container named `data (Primary)`
-7. Create a new folder `creditriskdata`
-8. Select `Upload` and select `loan.csv` and `borrower.csv` files downloaded from [Data](./Data/) folder
+```
+3. 実行後、後ほど使う情報がフォルダ内に.jsonとして出力されます。
 
-### Step 6. Register and scan uploaded data in Purview
 
-1. [Setting up authentication for a scan](https://docs.microsoft.com/en-us/azure/purview/register-scan-adls-gen2#managed-identity-recommended)
+### Step 2. Purviewスキャンの実施
 
-2. [Register and scan adls gen2](https://docs.microsoft.com/en-us/azure/purview/register-scan-adls-gen2#register-azure-data-lake-storage-gen2-data-source) 
+アップロードされたサンプルデータをアセットとしてPurviewデータカタログに登録します。
 
-select only the `creditriskdata` folder while creating the scan.
+#### Step 2.1 スキャンの実行
 
-![ADLSGen2 Scanning folder selection](./Deployment/img/ADLSGen2Scanning.PNG)
+1. [Purivew Studio](https://web.purview.azure.com/resource/)に移動します。
+2. このソリューションアクセラレータに使用する `Azure Active Directory` と `Account name` の名前を選択してください。
+3. 「Data Map」 > 「Sources」> 「View Detail」を選択します。
 
-Wait for scan run status to change to `Completed` before running next step.
 
-### Step 7. Upload Assets and Run Noteboks
-1. Launch the Synapse workspace [Synapse Workspace](https://ms.web.azuresynapse.net/)
-2. Select the `subscription` and `workspace` name you are using for this solution accelerator
-3. Go to the `Manage` tab in the Synapse workspace and click on the `Apache Spark pools`
 
-    - ![Spark Pool](./Deployment/img/ManageSparkPool.png)
-4. Click `...` on the deployed Spark Pool and select `Packages`
-5. Click `Upload` and select [requirements.txt](/Deployment/requirements.txt) from the cloned repo and click `Apply` 
- 
-    - ![Requirements File](./Deployment/img/Requirements.png)
+4. 「Scans」 > 「Scan-adls2」 を選択します。
 
-6. Go to `Develop`, click the `+`, and click `Import` to select all notebooks from the repository's `/SynapseNotebooks/` folder
-7. For each of the notebooks, select `Attach to > spark1` in the top dropdown
-8. Update Purview Tenant, Client Id and Secret from step `2.1` in `01_Authenticate_to_Purview_AML.ipynb`
-9. Update Azure Machine Learning Tenant, Client Id and Secret from step `3.1` in `01_Authenticate_to_Purview_AML.ipynb`
-10. Update `account_name` variable to your ADLS in `04_Create_CreditRisk_Experiment.ipynb`
-11. Click `Publish all` to publish the notebook changes
-12. Run the following notebook:
-	- `04_Create_CreditRisk_Experiment.ipynb` (This notebook runs other notebooks you imported)
-	
-### Step 8. Check Machine Learning Lineage in Purview Studio
-1. Launch [Purview Studio](https://ms.web.purview.azure.com/)
-2. Click on `Browse Assets`
-3. Click on `Custom Model` and select the model we created from running notebooks in `Step 7`
-4. Click on `Lineage` to see Machine Learning process Lineage
+
+
+5. 「Run Scan Now」 > 「Full Scan」を選択して、スキャンを実行します。8分ほどでスキャンが完了し、カタログ検索が可能になります。
+
+### Step 3. Synapse SparkによるML処理の実行
+
+Synapse Sparkを利用してML処理を実行します。
+Notebook内の変数に指定する情報は、Step 1.3で出力されたファイルを参照してください。
+
+#### Step 3.1  
+
+1. [Synapse Studio](https://web.azuresynapse.net/)にログインします。
+2. このソリューションアクセラレータに使用する `Azure Active Directory` と `サブスクリプション` と `ワークスペース名` の名前を選択してください
+3. Go to `開発`ハブに移動します。各ノートブックを開き、上部を`アタッチ先 > Spark2x4`に変更します。 
+
+4. `01_Authenticate_to_Purview_AML.ipynb`で、2セル目の`<TENANT_ID>, <CLIENT_ID>, <CLIENT_SECRET>,<PURVIEW_NAME>`を更新します。
+
+5. `01_Authenticate_to_Purview_AML.ipynb`で、3セル目の`<SUBSCRIPTION_ID>,<RESOURCE_GROUP>,<WORKSPACE_NAME>,<WORKSPACE_REGION>`を更新します。
+6. `04_Create_CreditRisk_Experiment.ipynb`で、5セル目の`<Synapse Storage Account Name>`を更新します。
+7. `すべて発行` をクリックしてノートブックの変更を発行します。
+8. 以下のノートブックを最後まで実行します。
+	- `04_Create_CreditRisk_Experiment.ipynb` (このノートブックは、インポートした他のノートブックを実行します)
+
+*注意*
+このノートブックにより、Azure Machine learningの推論エンドポイントとしてAzure Container Instanceがデプロイされます。
+費用を停止する場合はAzure ML Studioから推論エンドポイントを削除してください
+
+### Step 4. Purview Studio上でMachine Learning リネージの確認
+
+1.  [Purview Studio](https://web.purview.azure.com/)を起動します。
+2. `Browse Assets` > `By source type`を選択します。
+3. `Custom Ml Model` > `creditrisk_model`を選択します。
+4. `Lineage` を選択しリネージを確認します。
 ![ML Lineage](./Deployment/img/PurviewScreenshot.png)
 
-### Step 9. Upload Assets and Run Azure Machine Learning Noteboks (Optional)
-1. Launch the Azure Machine Learning studio [AML Studio](https://ml.azure.com/) 
-2. Select the `subscription` and `workspace` name you are using for this solution accelerator
-3. Go to the `Notebooks` tab in the AML Studio and upload the notebooks and scripts in `AML Notebooks` folder including `Data` folder
-4. Go to the `Compute` tab in the AML Studio and click on the `Compute Instances` 
-5. Click `New` and create a new compute instance
-6. Click `Jupyter` and launch the compute instance
-7. In the browser window that opens, click the folders to see the notebooks you uploaded in step `9.3`
-7. Update Purview Tenant, Client Id and Secret from step `2.1` in `Authenticate_to_Purview_AML.py`
-8. Update Azure Machine Learning Tenant, Client Id and Secret from step `3.1` in `Authenticate_to_Purview_AML.py`
-9. Run the following notebooks in order:
-	- `01_Create_CreditRisk_AML_Pipeline.ipynb` ( Pipeline run might take few minutes so please wait for completion before running the next notebook) 
-	- `02_Create_CreditRisk_AML_Pipeline_Lineage.ipynb`	
+### Step 5. アセットアップロードとAzure Machine Learning Noteboksでの実行 (オプション)
+1. Azure Machine Learning studio [AML Studio](https://ml.azure.com/)を起動します。
+2. このソリューションアクセラレータで使用する「サブスクリプション」と「ワークスペース」の名前を選択します。
+3. AML Studioの「Notebooks」タブに移動し、「Data」フォルダを含む「AML Notebooks」フォルダにノートブックとスクリプトをアップロードします。
+4. AML Studio の「Compute」タブを開き、「Compute Instances」をクリックします。
+5. 新規をクリックして、新しいコンピュートインスタンスを作成します。
+6. Jupyterをクリックして、コンピュートインスタンスを起動します。
+7. 開いたブラウザウィンドウで、フォルダをクリックすると、ステップ`9.3`でアップロードしたノートブックが表示されます。
+7. 7. `Authenticate_to_Purview_AML.py`で手順`2.1`のPurview Tenant, Client Id, Secretを更新します。
+8. 認証_to_Purview_AML.py`のステップ`3.1`からAzure Machine Learning Tenant, Client Id, Secretを更新します。
+9. 以下のノートブックを順番に実行します。
+	- 01_Create_CreditRisk_AML_Pipeline.ipynb` ( パイプラインの実行には数分かかる場合がありますので、完了を待ってから次のノートブックを実行してください ) 
+	- 02_Create_CreditRisk_AML_Pipeline_Lineage.ipynb `	
+
 	
 ![ML Pipeline](./Deployment/img/AMLPipeline.PNG)	
 
-### Step 10. Check Machine Learning pipeline Lineage in Purview Studio (Optional)
-1. Launch [Purview Studio](https://ms.web.purview.azure.com/)
-2. Click on `Browse Assets`
-3. Click on `Custom ML Experiment Step` and select any step we created from running notebooks in `Step 9`
-4. Click on `Lineage` to see Machine Learning pipeline Lineage
+### Step 6. Purview Studio上でMachine Learning Pipeline リネージの確認(オプション)
+1. [Purview Studio](https://ms.web.purview.azure.com/)を起動します。
+2. `Browse Assets` > `By source type`を選択します。
+3.  `Custom ML Experiment Step`を選択します。
+4. `Lineage` を選択しリネージを確認します。
 
 ![ML Pipeline Lineage](./Deployment/img/AMLPipelineLineage.PNG)
 	
