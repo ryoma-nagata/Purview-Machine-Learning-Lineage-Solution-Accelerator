@@ -41,17 +41,10 @@ def authentitae_to_purview_AML():
     aml_client_id = "<CLIENT_ID>"
     aml_client_secret = "<CLIENT_SECRET>"
     
-    
-    from azureml.core.authentication import ServicePrincipalAuthentication
-
-    sp = ServicePrincipalAuthentication(tenant_id=tenant_id, 
-                                        service_principal_id=client_id, 
-                                        service_principal_password=client_secret)
 
     from azureml.core import Workspace
 
     ws = Workspace.get(name=workspace_name,
                     resource_group = resource_group,
-                    auth=sp,
                     subscription_id=subscription_id)
     return ws,guid,client

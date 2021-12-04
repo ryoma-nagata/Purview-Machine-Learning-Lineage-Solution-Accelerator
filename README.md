@@ -84,6 +84,19 @@ bash deploy.sh
 ```
 3. 実行後、後ほど使う情報がフォルダ内にvariable.jsonとして出力されます。
 
+#### libraryの不具合
+
+2021/12/05現在、Spark poolでワークスペースパッケージを追加できない状態を確認しています。
+
+スクリプトの中で追加するようにしていましたが、現在はこれをコメントアウトしているので、
+セッションレベルのパッケージを追加してください。
+
+1. 実行するノートブックで、設定を開きます。
+![](.image/2021-12-05-07-37-43.png)
+2. パッケージタブからファイルのアップロードを選択。
+![](.image/2021-12-05-07-38-35.png)
+3. environment.ymlを選択
+![](.image/2021-12-05-07-39-25.png)
 
 ### Step 2. Purviewスキャンの実施
 
@@ -143,9 +156,8 @@ Notebook内の変数に指定する情報は、Step 1.3で出力されたファ�
 4. AML Studio の「Compute」タブを開き、「Compute Instances」をクリックします。
 5. 新規をクリックして、新しいコンピュートインスタンスを作成します。
 6. Jupyterをクリックして、コンピュートインスタンスを起動します。
-7. 開いたブラウザウィンドウで、フォルダをクリックすると、ステップ`9.3`でアップロードしたノートブックが表示されます。
-7. 7. `Authenticate_to_Purview_AML.py`で手順`2.1`のPurview Tenant, Client Id, Secretを更新します。
-8. 認証_to_Purview_AML.py`のステップ`3.1`からAzure Machine Learning Tenant, Client Id, Secretを更新します。
+7. 開いたブラウザウィンドウで、フォルダをクリックするとアップロードしたノートブックが表示されます。
+8. `Authenticate_to_Purview_AML.py`でstep3.1と同様に
 9. 以下のノートブックを順番に実行します。
 	- 01_Create_CreditRisk_AML_Pipeline.ipynb` ( パイプラインの実行には数分かかる場合がありますので、完了を待ってから次のノートブックを実行してください ) 
 	- 02_Create_CreditRisk_AML_Pipeline_Lineage.ipynb `	
@@ -160,6 +172,10 @@ Notebook内の変数に指定する情報は、Step 1.3で出力されたファ�
 4. `Lineage` を選択しリネージを確認します。
 
 ![ML Pipeline Lineage](./Deployment/img/AMLPipelineLineage.PNG)
+
+
+
+
 	
 ## Architecture
 The architecture diagram below details what you will be building for this Solution Accelerator.
