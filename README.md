@@ -47,7 +47,7 @@ Azure Purviewは、さまざまなソースのデータを管理・統制する�
 
 Azureリソースとして以下がデプロイされます。
 Azure Deployボタンからもワンクリックデプロイ可能です。
-
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https%3A%2F%2Fraw.githubusercontent.com%2Fryoma-nagata%2FPurview-Machine-Learning-Lineage-Solution-Accelerator%2Fmain%2FDeployment%2Finfrastructure%2Fbicep%2Fmain.json)
 
 - Azure Synapse Analytics
 - Azure Data Lake Storage Gen2
