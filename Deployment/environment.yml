@@ -4,4 +4,3 @@ channels:
 dependencies:
 - pip:
   - pyapacheatlas
-  - azureml-dataset-runtime

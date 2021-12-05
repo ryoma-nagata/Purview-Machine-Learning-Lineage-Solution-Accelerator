@@ -1,3 +1,4 @@
 azureml-core
 ipykernel
-azureml-dataset-runtime
+azureml-train-automl-runtime
+azureml-pipeline-core
