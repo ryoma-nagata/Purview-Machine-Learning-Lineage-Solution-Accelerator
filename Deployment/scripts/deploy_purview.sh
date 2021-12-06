@@ -46,6 +46,7 @@ echo "Deploying Purview"
 version='2021-07-01'
 getColURL=https://${apv_name}.purview.azure.com/policystore/collections/${apv_name}/metadataPolicy?api-version=${version}
 
+echo "get collections"
 resp=$(az rest --method get --resource "https://purview.azure.net" --url $getColURL)
 
 # collectionId
@@ -104,7 +105,7 @@ putUrl=https://${apv_name}.purview.azure.com/policystore/metadataPolicies/${coll
 
 az rest --method put --resource "https://purview.azure.net" --url $putUrl --body "$body"
 
-echo "Added menber to Purview Data Curator : $principalMSid,$principalMSid"
+echo "Added menber to Purview Data Curator : $principalMSid,$addMemberPID"
 
 # Create source adls gen2
 
