@@ -37,7 +37,7 @@ echo "Validating deployment"
 arm_output=$(az deployment group validate \
     --resource-group $resource_group_name \
     --template-file ./Deployment/infrastructure/bicep/main.bicep \
-    --parameters project=$PROJECT env=$ENV_NAME deployment_id=$DEPLOYMENT_ID \
+    --parameters project=$PROJECT env=$ENV_NAME deployment_id=$DEPLOYMENT_ID signed_in_user_object_id=$signed_in_user_object_id\
     --output json)
 
 # Deploy arm template
@@ -45,7 +45,7 @@ echo "Deploying resources into $resource_group_name"
 arm_output=$(az deployment group create \
     --resource-group $resource_group_name \
     --template-file ./Deployment/infrastructure/bicep/main.bicep \
-    --parameters project=$PROJECT env=$ENV_NAME deployment_id=$DEPLOYMENT_ID \
+    --parameters project=$PROJECT env=$ENV_NAME deployment_id=$DEPLOYMENT_ID signed_in_user_object_id=$signed_in_user_object_id\
     --output json)
 
 echo "Finish deploying resources into $resource_group_name"

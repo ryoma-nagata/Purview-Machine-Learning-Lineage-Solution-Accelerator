@@ -6,6 +6,8 @@ param project string ='analytics'
 ])
 param env string ='demo'
 param deployment_id string 
+param signed_in_user_object_id string 
+
 var uniqueName = '${project}-${deployment_id}-${env}'
 
 // 並列でデプロイするためここで生成
@@ -21,6 +23,7 @@ module purview 'modules/purview.bicep' = {
 module synapse 'modules/synapse.bicep' ={
   name: 'Synapse_Deployment'
   params:{
+    userId:signed_in_user_object_id
     paramName:uniqueName
     purviewId:purviewId
   }

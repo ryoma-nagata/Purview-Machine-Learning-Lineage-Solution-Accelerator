@@ -8,6 +8,7 @@ param paramName string
 ])
 param AllowAll string = 'true'
 param purviewId string
+param userId string 
 
 var location = resourceGroup().location
 
@@ -111,7 +112,7 @@ resource synapseWorkspace_spark1 'Microsoft.Synapse/workspaces/bigDataPools@2021
   location: location
   properties: {
     sparkVersion: '2.4'
-    nodeCount: 3
+    nodeCount: 10
     nodeSize: 'Medium'
     nodeSizeFamily: 'MemoryOptimized'
     autoScale: {
@@ -127,9 +128,8 @@ resource synapseWorkspace_spark1 'Microsoft.Synapse/workspaces/bigDataPools@2021
     sessionLevelPackagesEnabled: true
     cacheSize: 0
     dynamicExecutorAllocation: {
-      enabled: true
+      enabled: false
     }
-    provisioningState: 'Succeeded'
   }
 }
 
@@ -140,6 +140,20 @@ resource roleAssignments_synapsetostorage 'Microsoft.Authorization/roleAssignmen
     roleDefinitionId: StorageBlobDataContributor
     principalId: synapseWorkspace.identity.principalId
     principalType: 'ServicePrincipal'
+  }
+  dependsOn:[
+    synapsestorage
+    synapseWorkspace
+  ]
+}
+
+resource roleAssignments_userId 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  scope: synapsestorage
+  name: guid('synapseBlobContributor',synapsestorage.name,userId)
+  properties: {
+    roleDefinitionId: StorageBlobDataContributor
+    principalId: userId
+    principalType: 'User'
   }
   dependsOn:[
     synapsestorage
