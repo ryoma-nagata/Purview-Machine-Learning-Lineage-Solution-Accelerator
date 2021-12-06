@@ -9,8 +9,8 @@ set -o nounset
 project=linage # CONSTANT - this is prefix for this sample
 
 . ./Deployment/scripts/init.sh
+start=$(date)
 
-echo "Starting deployment at "$(date)
 
 
 for env_name in demo; do  # dev stg prod
@@ -22,6 +22,6 @@ for env_name in demo; do  # dev stg prod
     bash -c "./Deployment/scripts/deploy_infrastructure.sh"  
 done
 
-
+echo "Starting deployment at ${start}"
 echo "finish deployment at "$(date)
 
