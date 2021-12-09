@@ -172,7 +172,8 @@ Notebook内の変数に指定する情報は、Step 1.3で出力されたファ�
 1. [Purview Studio](https://ms.web.purview.azure.com/)を起動します。
 2. `Browse Assets` > `By source type`を選択します。
 3.  `Custom ML Experiment Step`を選択します。
-4. `Lineage` を選択しリネージを確認します。
+4. `CreditRiskPipeline_RunBatchInference`を選択します。
+5. `Lineage` を選択しリネージを確認します。
 
 ![ML Pipeline Lineage](./Deployment/img/AMLPipelineLineage.PNG)
 
