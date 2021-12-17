@@ -3,7 +3,7 @@
     "properties": {
       "endpoint": "https://.dfs.core.windows.net/",
       "collection": {
-        "referenceName": "",
+        "referenceName": "localdev",
         "type": "CollectionReference"
       }
     }

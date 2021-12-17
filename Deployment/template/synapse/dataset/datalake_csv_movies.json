@@ -1,0 +1,49 @@
+{
+  "name": "datlake_csv_movies",
+  "properties": {
+    "linkedServiceName": {
+      "referenceName": "syn-analyticsdemo5rc3-WorkspaceDefaultStorage",
+      "type": "LinkedServiceReference"
+    },
+    "annotations": [],
+    "type": "DelimitedText",
+    "typeProperties": {
+      "location": {
+        "type": "AzureBlobFSLocation",
+        "fileName": "movieDB2.csv",
+        "folderPath": "landing/movies",
+        "fileSystem": "data"
+      },
+      "columnDelimiter": ",",
+      "escapeChar": "\\",
+      "firstRowAsHeader": true,
+      "quoteChar": "\""
+    },
+    "schema": [
+      {
+        "name": "movies",
+        "type": "String"
+      },
+      {
+        "name": "Title",
+        "type": "String"
+      },
+      {
+        "name": "genresgenregenre",
+        "type": "String"
+      },
+      {
+        "name": "YEAR",
+        "type": "String"
+      },
+      {
+        "name": "Rating",
+        "type": "String"
+      }
+    ],
+    "folder": {
+      "name": "datalake"
+    }
+  },
+  "type": "Microsoft.Synapse/workspaces/datasets"
+}

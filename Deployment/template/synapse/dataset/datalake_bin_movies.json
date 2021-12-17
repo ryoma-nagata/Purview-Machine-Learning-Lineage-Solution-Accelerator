@@ -1,0 +1,23 @@
+{
+  "name": "datalake_bin_movies",
+  "properties": {
+    "linkedServiceName": {
+      "referenceName": "syn-analyticsdemo5rc3-WorkspaceDefaultStorage",
+      "type": "LinkedServiceReference"
+    },
+    "annotations": [],
+    "type": "Binary",
+    "typeProperties": {
+      "location": {
+        "type": "AzureBlobFSLocation",
+        "fileName": "movieDB2.csv",
+        "folderPath": "landing/movies",
+        "fileSystem": "data"
+      }
+    },
+    "folder": {
+			"name": "datalake"
+		}
+  },
+  "type": "Microsoft.Synapse/workspaces/datasets"
+}

@@ -1,0 +1,38 @@
+{
+  "name": "movies_new",
+  "properties": {
+    "folder": {
+      "name": "movies_delta"
+    },
+    "type": "MappingDataFlow",
+    "typeProperties": {
+      "sources": [
+        {
+          "dataset": {
+            "referenceName": "datalake_csv_movies",
+            "type": "DatasetReference"
+          },
+          "name": "csv"
+        }
+      ],
+      "sinks": [
+        {
+          "linkedService": {
+            "referenceName": "syn-analyticsdemo5rc3-WorkspaceDefaultStorage",
+            "type": "LinkedServiceReference"
+          },
+          "name": "deltanew"
+        }
+      ],
+      "transformations": [
+        {
+          "name": "highrate"
+        },
+        {
+          "name": "fillter2000"
+        }
+      ],
+      "script": "source(output(\n\t\tmovies as integer,\n\t\tTitle as string,\n\t\tgenresgenregenre as string,\n\t\tYEAR as integer,\n\t\tRating as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> csv\nfillter2000 derive(is_hit = iif(Rating>7, 1, 0)) ~> highrate\ncsv filter(YEAR <2000) ~> fillter2000\nhighrate sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'data',\n\tfolderPath: 'bronze/movies_delta',\n\toverwrite:true,\n\tmergeSchema: false,\n\tautoCompact: false,\n\toptimizedWrite: false,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> deltanew"
+    }
+  }
+}

@@ -18,6 +18,7 @@ set -o nounset
 
 #####################
 # DEPLOY ARM TEMPLATE
+sqlpwd=$(echo /dev/urandom | base64 | fold -w 10 | head -n 1)
 
 # Set account to where ARM template will be deployed to
 echo "Deploying to Subscription: $AZURE_SUBSCRIPTION_ID"
@@ -37,7 +38,8 @@ echo "Validating deployment"
 arm_output=$(az deployment group validate \
     --resource-group $resource_group_name \
     --template-file ./Deployment/infrastructure/bicep/main.bicep \
-    --parameters project=$PROJECT env=$ENV_NAME deployment_id=$DEPLOYMENT_ID signed_in_user_object_id=$signed_in_user_object_id\
+    --parameters project=$PROJECT env=$ENV_NAME deployment_id=$DEPLOYMENT_ID signed_in_user_object_id=$signed_in_user_object_id \
+    sqlPassword=$sqlpwd \
     --output json)
 
 # Deploy arm template
@@ -45,27 +47,22 @@ echo "Deploying resources into $resource_group_name"
 arm_output=$(az deployment group create \
     --resource-group $resource_group_name \
     --template-file ./Deployment/infrastructure/bicep/main.bicep \
-    --parameters project=$PROJECT env=$ENV_NAME deployment_id=$DEPLOYMENT_ID signed_in_user_object_id=$signed_in_user_object_id\
+    --parameters project=$PROJECT env=$ENV_NAME deployment_id=$DEPLOYMENT_ID signed_in_user_object_id=$signed_in_user_object_id \
+    sqlPassword=$sqlpwd \
     --output json)
 
 echo "Finish deploying resources into $resource_group_name"
 
 # ########################
+echo "Deploy SQL Database"
 
-# upload data
+# Deploy SQL DB
 
-synapsestorageName=$(echo "$arm_output" | jq -r '.properties.outputs.synapsestorageName.value')
-synContainer=$(echo "$arm_output" | jq -r '.properties.outputs.synContainer.value')
+sqlsvName=$(echo "$arm_output" | jq -r '.properties.outputs.sqlsvName.value')
 
-echo "Uploading data to ${synapsestorageName}"
-
-az storage blob upload-batch  \
---auth-mode login \
--d "$synContainer" \
---account-name "$synapsestorageName" \
--s ./Data
-
-echo "Finish uploading data"
+RESOURCE_GROUP_NAME=$resource_group_name \
+SQL_SERVER_NAME=$sqlsvName \
+    bash -c "./Deployment/scripts/deploy_sqldatabase.sh"
 
 #####################
 # Create a Service Principal for Purview Rest API access
@@ -102,20 +99,51 @@ APV_NAME=$apv_name \
 SP_OBJECTID=$sp_objectId \
 SYNAPSE_OBJECTID=$syn_objectId \
 SYNAPSE_STORAGENAME=$synapsestorageName \
+SQL_SERVER_NAME=$sqlsvName \
     bash -c "./Deployment/scripts/deploy_purview.sh"
+
+
+#####################
+
+
+# upload data
+
+synapsestorageName=$(echo "$arm_output" | jq -r '.properties.outputs.synapsestorageName.value')
+synContainer=$(echo "$arm_output" | jq -r '.properties.outputs.synContainer.value')
+
+echo "Uploading data to ${synapsestorageName}"
+
+az storage blob upload-batch  \
+--auth-mode login \
+-d "$synContainer" \
+--account-name "$synapsestorageName" \
+-s ./Data
+
+echo "Finish uploading data"
+
+
 
 #####################
 
 # Deploy Synapse
+# リソース固有値変更
+
+
+synapseSrcDir=./Deployment/template/synapse/
+# synLsDir=$synTmpDir/linkedService
+
 synWorkspaceName=$(echo "$arm_output" | jq -r '.properties.outputs.synWorkspaceName.value')
 synSparkName=$(echo "$arm_output" | jq -r '.properties.outputs.synSparkName.value')
 
 RESOURCE_GROUP_NAME=$resource_group_name \
 SYN_WORKSPACENAME=$synWorkspaceName \
 SYN_SPARKNAME=$synSparkName \
+SYN_SRCDIR=$synapseSrcDir \
+SYNAPSE_STORAGENAME=$synapsestorageName \
+SQL_SERVER_NAME=$sqlsvName \
     bash -c "./Deployment/scripts/deploy_synapse_artifacts.sh"
 
-
+#####################
 # variables file
 
 azuremlName=$(echo "$arm_output" | jq -r '.properties.outputs.azuremlName.value')

@@ -1,0 +1,21 @@
+{
+	"name": "github_Movies",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Github",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": "kromerm/adfdataflowdocs/master/sampledata/moviesDB2.csv"
+			}
+		},
+		"folder": {
+			"name": "github"
+		}
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

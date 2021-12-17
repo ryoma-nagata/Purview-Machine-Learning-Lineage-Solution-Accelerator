@@ -14,14 +14,63 @@ set -o nounset
 # SP_OBJECTID
 # SYNAPSE_OBJECTID
 # SYNAPSE_STORAGENAME
+# SQL_SERVER_NAME
+
 ##############
+
+
+
 
 apv_name=$APV_NAME
 resource_group_name=$RESOURCE_GROUP_NAME
 sp_objectId=$SP_OBJECTID
 addMemberPID=$SYNAPSE_OBJECTID
 synapsestorageName=$SYNAPSE_STORAGENAME
+sqlsvName=$SQL_SERVER_NAME
 
+topCollectionName='localdev'
+
+##############
+# variable
+
+endpoint="https://${apv_name}.purview.azure.com"
+
+##############
+# functions
+
+CreateCollection () {
+    declare collectionName=$1
+    declare parentFrendryName=$2
+    getCollectionURL=${endpoint}/collections/${parentFrendryName}?api-version=2019-11-01-preview
+    parentCollectionName=$(az rest --method get --resource "https://purview.azure.net" --url $getCollectionURL | jq -r '.name')
+    createColleciontURL=${endpoint}/collections/${collectionName}?api-version=2019-11-01-preview
+    collectionBody=$(printf '
+        {
+            "parentCollection": {
+                "referenceName":"%s"
+            }
+        }
+    ' "${parentCollectionName}")
+    az rest --method put --resource "https://purview.azure.net" --url $createColleciontURL --body "$collectionBody"
+    echo "Created Collection: $collectionName"
+}
+
+CreateKeyVault () {
+    declare keyVaultName=$1
+    createKeyVaultURL=${endpoint}/scan/azureKeyVaults/${keyVaultName}?api-version=2018-12-01-preview
+    KeyVaultBody=$(printf '
+        {
+            "properties": {
+                "baseUrl": "https://%s.vault.azure.net/",
+                "description": "Governance KeyVault"
+            }
+        }
+    ' "${keyVaultName}")
+    az rest --method put --resource "https://purview.azure.net" --url $createKeyVaultURL --body "$KeyVaultBody"
+    echo "Created KeyVault Connection: $keyVaultName"
+}
+
+##############
 
 echo "Deploying Purview"
 
@@ -107,6 +156,15 @@ az rest --method put --resource "https://purview.azure.net" --url $putUrl --body
 
 echo "Added menber to Purview Data Curator : $principalMSid,$addMemberPID"
 
+
+
+
+# Create Collection
+
+CreateCollection $topCollectionName "$apv_name"
+
+
+
 # Create source adls gen2
 
 echo "Registring Data Source ADLS2"
@@ -115,23 +173,43 @@ echo "Registring Data Source ADLS2"
 
 endpoint=https://${synapsestorageName}.dfs.core.windows.net/
 sourcebody=$(cat ./Deployment/template/purview/source/source_adls2.json | jq --arg endpoint "$endpoint" '.properties.endpoint = $endpoint')
-sourcebody=$(echo $sourcebody | jq --arg refName "$apv_name" '.properties.collection.referenceName = $refName')
+sourcebody=$(echo $sourcebody | jq --arg refName "$topCollectionName" '.properties.collection.referenceName = $refName')
 sourcePutUrl=https://${apv_name}.scan.purview.azure.com/datasources/${synapsestorageName}?api-version=2018-12-01-preview
 
-az rest --method put --resource "https://purview.azure.net" --url $sourcePutUrl --body "$sourcebody"
+az rest --method put --resource "https://purview.azure.net" --url "$sourcePutUrl" --body "$sourcebody"
 
 
 echo "Finish register Data Source : ${synapsestorageName} "
+
+serverEndpoint="${sqlsvName}.database.windows.net"
+sourcebody=$(cat ./Deployment/template/purview/source/source_AdventureWorksLT.json | jq --arg serverEndpoint "$serverEndpoint" '.properties.serverEndpoint = $serverEndpoint')
+sourcebody=$(echo $sourcebody | jq --arg resourceName "$sqlsvName" '.properties.resourceName = $resourceName')
+sourcebody=$(echo $sourcebody | jq --arg refName "$topCollectionName" '.properties.collection.referenceName = $refName')
+sourcePutUrl=https://${apv_name}.scan.purview.azure.com/datasources/${sqlsvName}?api-version=2018-12-01-preview
+
+az rest --method put --resource "https://purview.azure.net" --url $sourcePutUrl --body "$sourcebody"
+
+echo "Finish register Data Source : ${sqlsvName} "
 
 
 # Create scan adls gen2
 echo "Creating Scan ADLS2"
 
 scanPutUrl=https://${apv_name}.purview.azure.com/scan/datasources/${synapsestorageName}/scans/Scan-adls2?api-version=2018-12-01-preview
-scanbody=$(cat ./Deployment/template/purview/scan/scan_adls2.json | jq --arg refName "$apv_name" '.properties.collection.referenceName = $refName')
+scanbody=$(cat ./Deployment/template/purview/scan/scan_adls2.json | jq --arg refName "$topCollectionName" '.properties.collection.referenceName = $refName')
 az rest --method put --resource "https://purview.azure.net" --url $scanPutUrl --body "$scanbody"
 
 echo "Created Scan ADLS2"
+
+echo "Creating Scan AdventureWorksLT"
+
+scanPutUrl=https://${apv_name}.purview.azure.com/scan/datasources/${sqlsvName}/scans/Scan-AdventureWorksLT?api-version=2018-12-01-preview
+scanbody=$(cat ./Deployment/template/purview/scan/scan_AdventureWorksLT.json | jq --arg serverEndpoint "$serverEndpoint" '.properties.serverEndpoint = $serverEndpoint')
+scanbody=$(echo $scanbody | jq --arg refName "$topCollectionName" '.properties.collection.referenceName = $refName')
+
+az rest --method put --resource "https://purview.azure.net" --url $scanPutUrl --body "$scanbody"
+
+echo "Created Scan AdventureWorksLT"
 
 # run
 # echo "Run Scan ADLS2"

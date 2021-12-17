@@ -1,6 +1,6 @@
 param perviewlocation string = 'southeastasia'
 
-param project string ='analytics'
+param project string ='lineage'
 @allowed([
   'demo'
 ])
@@ -8,10 +8,22 @@ param env string ='demo'
 param deployment_id string 
 param signed_in_user_object_id string 
 
+@secure()
+param sqlPassword string
+
 var uniqueName = '${project}-${deployment_id}-${env}'
 
 // 並列でデプロイするためここで生成
-var purviewId = '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Purview/accounts/apv-${uniqueName}'
+var purviewId = '${resourceGroup().id}/providers/Microsoft.Purview/accounts/apv-${uniqueName}'
+module sql 'modules/sql.bicep' ={
+  name:'sql_Deployment'
+    params:{
+    paramName:uniqueName
+    sqlLogin:'sqladmin'
+    sqlPassword:sqlPassword
+  }
+
+}
 
 module purview 'modules/purview.bicep' = {
   name: 'Purview_Deployment'
@@ -58,3 +70,4 @@ output synWorkspaceName string = synapse.outputs.synWorkspaceName
 output synSparkName string = synapse.outputs.synSparkName
 
 output azuremlName string = azureml.outputs.azuremlName
+output sqlsvName string = sql.outputs.sqlserverName

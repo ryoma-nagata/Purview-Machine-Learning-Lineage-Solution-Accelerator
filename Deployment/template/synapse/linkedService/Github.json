@@ -1,0 +1,17 @@
+{
+	"name": "Github",
+	"type": "Microsoft.Synapse/workspaces/linkedservices",
+	"properties": {
+		"type": "HttpServer",
+		"connectVia": {
+			"referenceName": "AutoResolveIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		},
+		"annotations": [],
+		"typeProperties": {
+			"url": "https://raw.githubusercontent.com/",
+			"authenticationType": "Anonymous",
+			"enableServerCertificateValidation": true
+		}
+	}
+}

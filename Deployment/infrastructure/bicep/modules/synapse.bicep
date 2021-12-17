@@ -74,28 +74,28 @@ resource storageName_default_storageContainer 'Microsoft.Storage/storageAccounts
 }
 
 
+
 resource synapseWorkspace 'Microsoft.Synapse/workspaces@2021-06-01' = {
-  name: synapseWorkspaceName_var
-  location: location
-  identity: {
-    type: 'SystemAssigned'
+  name:synapseWorkspaceName_var
+  location:location
+  identity:{
+    type:'SystemAssigned'
   }
-  properties: {
+
+  properties:{
+    defaultDataLakeStorage:{
+      filesystem:storageContainer
+      accountUrl: 'https://${storageName_var}.dfs.${environment().suffixes.storage}'
+    }
+    sqlAdministratorLogin: 'sqladminuser'
+    sqlAdministratorLoginPassword: ''
+    publicNetworkAccess: 'Enabled'
     purviewConfiguration:{
       purviewResourceId:purviewId
     }
-    defaultDataLakeStorage: {
-      accountUrl: 'https://${storageName_var}.dfs.${environment().suffixes.storage}'
-      filesystem: storageContainer
-    }
-    virtualNetworkProfile: {
-      computeSubnetId: ''
-    }
-    sqlAdministratorLogin: 'sqladminuser'
+
   }
 }
-
-
 resource synapseWorkspace_allowAll 'Microsoft.Synapse/workspaces/firewallRules@2021-06-01' = if (AllowAll == 'true') {
   parent: synapseWorkspace
   name: 'allowAll'

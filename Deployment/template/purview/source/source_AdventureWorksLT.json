@@ -1,0 +1,11 @@
+{
+    "kind": "AzureSqlDatabase",
+    "properties": {
+        "serverEndpoint": "sql-source-demo.database.windows.net",
+        "resourceName": "sql-source-demo",
+        "collection": {
+            "type": "CollectionReference",
+            "referenceName": "localdev"
+        }
+    }
+}

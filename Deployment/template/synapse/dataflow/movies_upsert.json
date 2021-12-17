@@ -1,0 +1,38 @@
+{
+  "name": "movies_upsert",
+  "properties": {
+    "folder": {
+      "name": "movies_delta"
+    },
+    "type": "MappingDataFlow",
+    "typeProperties": {
+      "sources": [
+        {
+          "dataset": {
+            "referenceName": "datalake_csv_movies",
+            "type": "DatasetReference"
+          },
+          "name": "source1"
+        }
+      ],
+      "sinks": [
+        {
+          "linkedService": {
+            "referenceName": "syn-analyticsdemo5rc3-WorkspaceDefaultStorage",
+            "type": "LinkedServiceReference"
+          },
+          "name": "sink1"
+        }
+      ],
+      "transformations": [
+        {
+          "name": "rate1"
+        },
+        {
+          "name": "alter"
+        }
+      ],
+      "script": "source(output(\n\t\tmovies as integer,\n\t\tTitle as string,\n\t\tgenresgenregenre as string,\n\t\tYEAR as integer,\n\t\tRating as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> source1\nsource1 derive(Rating = iif(YEAR==1999, 1, toInteger(Rating))) ~> rate1\nrate1 alterRow(upsertIf(YEAR>=1999)) ~> alter\nalter sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'data',\n\tfolderPath: 'bronze/movies_delta',\n\tmergeSchema: false,\n\tautoCompact: false,\n\toptimizedWrite: false,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:true,\n\tkeys:['movies','YEAR'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sink1"
+    }
+  }
+}

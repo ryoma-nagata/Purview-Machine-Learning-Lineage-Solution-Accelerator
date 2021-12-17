@@ -4,7 +4,7 @@
     "properties": {
         "collection": {
             "type": "CollectionReference",
-            "referenceName": ""
+            "referenceName": "localdev"
         },
         "scanRulesetType": "System",
         "scanRulesetName": "AdlsGen2"

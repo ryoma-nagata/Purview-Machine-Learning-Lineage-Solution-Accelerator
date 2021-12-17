@@ -1,0 +1,14 @@
+{
+    "name": "Scan-AdventureWorksLT",
+    "kind": "AzureSqlDatabaseMsi",
+    "properties": {
+        "serverEndpoint": "sql-linage-0814-demo.database.windows.net",
+        "databaseName": "AdventureWorksLT",
+        "collection": {
+            "type": "CollectionReference",
+            "referenceName": "localdev"
+        },
+        "scanRulesetType": "System",
+        "scanRulesetName": "AzureSqlDataWarehouse"
+    }
+}
