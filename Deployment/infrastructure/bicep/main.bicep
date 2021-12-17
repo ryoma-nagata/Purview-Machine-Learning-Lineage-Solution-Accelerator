@@ -11,7 +11,7 @@ param signed_in_user_object_id string
 var uniqueName = '${project}-${deployment_id}-${env}'
 
 // 並列でデプロイするためここで生成
-var purviewId = '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Purview/accounts/apv-${uniqueName}'
+var purviewId = '${resourceGroup().id}/providers/Microsoft.Purview/accounts/apv-${uniqueName}'
 
 module purview 'modules/purview.bicep' = {
   name: 'Purview_Deployment'

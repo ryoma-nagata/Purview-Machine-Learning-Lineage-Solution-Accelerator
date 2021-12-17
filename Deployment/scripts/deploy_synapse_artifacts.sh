@@ -44,10 +44,10 @@ ImportNotebook "02_Create_ML_Lineage_Types"
 ImportNotebook "03_Create_ML_Lineage_Functions" 
 ImportNotebook "04_Create_CreditRisk_Experiment" 
 
-# # library
-# # 解消されたらコメントアウトを削除する
-# echo 'Start importing library'
-# ImportLibrary "requirements"
+# library
+# 解消されたらコメントアウトを削除する
+echo 'Start importing library'
+ImportLibrary "requirements"
 
 echo "Completed deploying Synapse artifacts."
 
