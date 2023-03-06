@@ -1,0 +1,39 @@
+{
+    "name": "datalake_var_parquet",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "syn-ws-linage-0752-demo-WorkspaceDefaultStorage",
+            "type": "LinkedServiceReference"
+        },
+        "parameters": {
+            "folderName": {
+                "type": "string"
+            },
+            "fileName": {
+                "type": "string"
+            }
+        },
+        "folder": {
+            "name": "datalake"
+        },
+        "annotations": [],
+        "type": "Parquet",
+        "typeProperties": {
+            "location": {
+                "type": "AzureBlobFSLocation",
+                "fileName": {
+                    "value": "@dataset().fileName",
+                    "type": "Expression"
+                },
+                "folderPath": {
+                    "value": "@dataset().folderName",
+                    "type": "Expression"
+                },
+                "fileSystem": "data"
+            },
+            "compressionCodec": "snappy"
+        },
+        "schema": []
+    },
+    "type": "Microsoft.Synapse/workspaces/datasets"
+}

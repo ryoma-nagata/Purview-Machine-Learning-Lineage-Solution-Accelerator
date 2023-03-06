@@ -1,0 +1,34 @@
+{
+    "name": "AdventureWorksLT_var_table",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "sql_AdventureWorksLT",
+            "type": "LinkedServiceReference"
+        },
+        "parameters": {
+            "table": {
+                "type": "String"
+            },
+            "schema": {
+                "type": "string"
+            }
+        },
+        "folder": {
+            "name": "AdventureWorksLT"
+        },
+        "annotations": [],
+        "type": "AzureSqlTable",
+        "schema": [],
+        "typeProperties": {
+            "schema": {
+                "value": "@dataset().schema",
+                "type": "Expression"
+            },
+            "table": {
+                "value": "@dataset().table",
+                "type": "Expression"
+            }
+        }
+    },
+    "type": "Microsoft.Synapse/workspaces/datasets"
+}

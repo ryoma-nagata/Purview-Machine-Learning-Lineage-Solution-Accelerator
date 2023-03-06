@@ -1,0 +1,12 @@
+{
+    "kind": "AzureSynapseWorkspace",
+    "name": "AzureSynapseAnalytics",
+    "properties": {
+        "dedicatedSqlEndpoint": "syn-ws-linage-0947-demo.sql.azuresynapse.net",
+        "serverlessSqlEndpoint": "syn-ws-linage-0947-demo-ondemand.sql.azuresynapse.net",
+        "collection": {
+            "type": "CollectionReference",
+            "referenceName": "localdev"
+        }
+    }
+}

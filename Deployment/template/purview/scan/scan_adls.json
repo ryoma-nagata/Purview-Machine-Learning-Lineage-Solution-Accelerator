@@ -1,0 +1,23 @@
+{
+    "name": "Scan-Synapse",
+    "kind": "AzureSynapseWorkspaceMsi",
+    "properties": {
+        "resourceTypes": {
+            "AzureSynapseDedicatedSql": {
+                "resourceNameFilter": {
+                    "resources": [
+                        "dwh"
+                    ]
+                },
+                "credential": null,
+                "scanRulesetName": "AzureSynapseSQL",
+                "scanRulesetType": "System"
+            }
+        },
+        "credential": null,
+        "collection": {
+            "type": "CollectionReference",
+            "referenceName": "localdev"
+        }
+    }
+}

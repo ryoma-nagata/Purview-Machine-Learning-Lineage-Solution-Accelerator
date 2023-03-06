@@ -53,6 +53,7 @@ module role 'modules/roleAssingment.bicep' ={
     purviewId:purview.outputs.purviewPrincipalId
     synapseId:synapse.outputs.synapsePId
     synapsestorageName:synapse.outputs.synapsestorageName
+    synapseName:synapse.outputs.synWorkspaceName
   }
   dependsOn:[
     azureml
